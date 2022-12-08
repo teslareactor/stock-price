@@ -1,3 +1,4 @@
+import { debounce } from 'lodash';
 import React from 'react';
 import { GroupBase } from 'react-select';
 import AsyncSelect, { AsyncProps } from 'react-select/async';
@@ -21,8 +22,16 @@ const loadOptions = (input: string) => {
     })
 }
 
-export const StockSearchSelect: React.FC<IStockSearchSelectProps> = props =>
-    <AsyncSelect cacheOptions loadOptions={loadOptions} getOptionLabel={getOptionLabel} {...props} />
+/**
+ * Debounce option load function to delay call if user types fast since we have only 5 api call per minute.
+ */
+const debouncedLoadOptions = debounce(loadOptions, 200)
+
+export const StockSearchSelect: React.FC<IStockSearchSelectProps> = props => {
+
+
+    return <AsyncSelect cacheOptions loadOptions={debouncedLoadOptions} getOptionLabel={getOptionLabel} {...props} />
+}
 
 StockSearchSelect.defaultProps = {
     placeholder: 'Search Symbol or Company Name'
