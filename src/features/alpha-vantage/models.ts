@@ -6,10 +6,11 @@ export interface IAlphaVantageBaseRequest {
   datatype?: AlphaVantageResponseDataType
 }
 
-export type AlphaVantageResponseDataType =  'json' | 'csv'
+export type AlphaVantageResponseDataType = 'json' | 'csv'
 
 export enum AlphaVantageApiFunction {
-  symbolSearch = 'SYMBOL_SEARCH' 
+  symbolSearch = 'SYMBOL_SEARCH',
+  timeSeriesDailyAdjusted = 'TIME_SERIES_DAILY_ADJUSTED'
 }
 
 export interface ISearchQueryRequest extends IAlphaVantageBaseRequest {
@@ -35,4 +36,57 @@ export interface IStockDetails {
   "8. currency": string,
   // "0.7143"
   "9. matchScore": string
+}
+
+export interface IDailyTimeSeriesRequest extends IAlphaVantageBaseRequest {
+  function: AlphaVantageApiFunction.timeSeriesDailyAdjusted
+  symbol: string
+  /**
+   * compact = 100 data points
+   * full =  full-length time series
+   *  Defaults to compact.
+   */
+  outputsize?: 'compact' | 'full'
+}
+
+export interface IDailyTimeSeriesResponse {
+  "Meta Data": {
+    "1. Information": string,
+    "2. Symbol": string,
+    "3. Last Refreshed": string,
+    "4. Output Size": string,
+    "5. Time Zone": string
+  },
+  "Time Series (Daily)": ITimeSeries
+}
+
+/**
+ * Dictionary with keys as date and values as daily stock details.
+ */
+export type ITimeSeries = Record<string, ITimeSeriesDailyItem>
+
+export interface ITimeSeriesDailyItem {
+  "1. open": string,
+  "2. high": string,
+  "3. low": string,
+  "4. close": string,
+  "5. adjusted close": string,
+  "6. volume": string,
+  "7. dividend amount": string,
+  "8. split coefficient": string
+}
+
+/**
+ * Extended ITimeSeriesDailyItem to include actual date.
+ */
+export interface ITimeSeriesDailyItemWithDate extends ITimeSeriesDailyItem {
+  date: string
+}
+
+/**
+ * Response when API call limit is reached.
+ * API call frequency is 5 calls per minute and 500 calls per day.
+ */
+export interface ICallFrequencyLimitResponse {
+  Note: string
 }
